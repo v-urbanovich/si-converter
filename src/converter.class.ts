@@ -12,30 +12,20 @@ export interface IConvertedData {
     isBaseMeasurement: boolean;
 }
 
-interface IConnectedConverterOption extends IConverterOption {
-    next: string | null;
-    previous: string | null;
-}
-
 /**
  * Converter class
  */
 export class Converter {
-    private optionsArray: IConnectedConverterOption[];
+    private optionsArray: IConverterOption[];
     private baseMeasurement: string;
-    private optionsMap!: Map<string, IConnectedConverterOption>;
+    private optionsMap!: Map<string, IConverterOption>;
 
     public constructor(options: IConverterOption[]) {
-        // sort and connect options with each other
-        const sorted: IConverterOption[] = options.sort((option1, option2) => option1.value - option2.value);
-        this.optionsArray = sorted.map((option: IConverterOption, index: number) => ({
-            ...option,
-            next: (sorted[index + 1] && sorted[index + 1].id) || null,
-            previous: (sorted[index - 1] && sorted[index - 1].id) || null
-        }));
+        // sort options
+        this.optionsArray =  options.sort((option1, option2) => option1.value - option2.value);
 
         // set base measurement -> option with value equal to 1
-        const baseOption = this.optionsArray.find((option: IConnectedConverterOption) => option.value === 1);
+        const baseOption = this.optionsArray.find((option: IConverterOption) => option.value === 1);
         if (!baseOption) {
             throw new Error('You must provide option with value 1 as base option!');
         }
@@ -49,12 +39,12 @@ export class Converter {
      * Method allows to change base measurement and recalculate relations
      */
     public setBaseOption(optionKey: string) {
-        const newBaseOption: IConnectedConverterOption | undefined = this.optionsMap.get(optionKey);
+        const newBaseOption: IConverterOption | undefined = this.optionsMap.get(optionKey);
         if (!newBaseOption) {
             throw new Error(`Provided optionKey "${optionKey}" is missing`);
         }
         const modifier: number = 1 / newBaseOption.value;
-        this.optionsArray = this.optionsArray.map((option: IConnectedConverterOption) => ({
+        this.optionsArray = this.optionsArray.map((option: IConverterOption) => ({
             ...option,
             value: option.id === optionKey ? 1 : option.value * modifier
         }));
@@ -67,8 +57,8 @@ export class Converter {
      * Accept optional roundBy param which is default to 1
      */
     public convert(value: number, from: string, to: string, roundBy = 1): IConvertedData {
-        const fromOption: IConnectedConverterOption | undefined = this.optionsMap.get(from);
-        const toOption: IConnectedConverterOption | undefined = this.optionsMap.get(to);
+        const fromOption: IConverterOption | undefined = this.optionsMap.get(from);
+        const toOption: IConverterOption | undefined = this.optionsMap.get(to);
         if (!fromOption || !toOption) {
             throw new Error(`Provided from -> to identifiers are missing. Provided: ${from} -> ${to}`);
         }
@@ -87,7 +77,7 @@ export class Converter {
      * Converts provided value to the best format for displaying
      */
     public convertToShortened(value: number, roundBy = 1, measurement: string = this.baseMeasurement): IConvertedData {
-        const currentOption: IConnectedConverterOption | undefined = this.optionsMap.get(measurement);
+        const currentOption: IConverterOption | undefined = this.optionsMap.get(measurement);
         if (!currentOption) {
             throw new Error(`Provided measurement "${measurement}" is missing`);
         }
@@ -99,8 +89,8 @@ export class Converter {
      * Goes over all options and finds the best option to display provided value.
      * Starts from provided measurement which defaults to baseMeasurement
      */
-    private findBestMeasurement(value: number, measurement: IConnectedConverterOption): string {
-        return this.optionsArray.reduce((resultMeasurement: string, { id }: IConnectedConverterOption) => {
+    private findBestMeasurement(value: number, measurement: IConverterOption): string {
+        return this.optionsArray.reduce((resultMeasurement: string, { id }: IConverterOption) => {
             const resultValue: number =
                 resultMeasurement === measurement.id
                     ? value
@@ -114,7 +104,7 @@ export class Converter {
     }
 
     private setOptionsMap(): void {
-        const preparedOptions: [string, IConnectedConverterOption][] = this.optionsArray.map((option) => [
+        const preparedOptions: [string, IConverterOption][] = this.optionsArray.map((option) => [
             option.id,
             option
         ]);

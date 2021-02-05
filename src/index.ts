@@ -20,18 +20,16 @@ export const MICRO: 'micro' = 'micro';
 export const NANO: 'nano' = 'nano';
 
 const NumberOptions: IConverterOption[] = [
-    { id: GIGA, translateKey: 'GIGA', value: 1000000000 },
-    { id: MEGA, translateKey: 'MEGA', value: 1000000 },
-    { id: KILO, translateKey: 'KILO', value: 1000 },
+    { id: GIGA, translateKey: 'GIGA', value: 10 ** 9 },
+    { id: MEGA, translateKey: 'MEGA', value: 10 ** 6 },
+    { id: KILO, translateKey: 'KILO', value: 10 ** 3 },
     { id: NUMBER, translateKey: '', value: 1 },
-    { id: MILLI, translateKey: 'MILLI', value: 0.001 },
-    { id: MICRO, translateKey: 'MICRO', value: 0.000001 },
-    { id: NANO, translateKey: 'NANO', value: 0.000000001 }
+    { id: MILLI, translateKey: 'MILLI', value: 10 ** -3 },
+    { id: MICRO, translateKey: 'MICRO', value: 10 ** -6 },
+    { id: NANO, translateKey: 'NANO', value: 10 ** -9 }
 ];
 
-export const FullNumberConverter = new Converter([...NumberOptions]);
-export const NumberConverter = new Converter(NumberOptions.slice(2));
-export const NumberConverterLite = new Converter(NumberOptions.slice(2, 4));
+export const NumberConverter = new Converter([...NumberOptions]);
 
 // <--------- Time Converter ----------->
 
